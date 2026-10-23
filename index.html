@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Screensaver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white; font-family: 'Outfit', sans-serif;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 40px; box-sizing: border-box; text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .top-row { display: flex; justify-content: space-between; font-size: 24px; }
+        .clock-container { text-align: center; margin-top: 10vh; }
+        .time { font-size: 150px; font-weight: 300; line-height: 1; margin: 0; }
+        .date { font-size: 30px; color: #b0c4de; margin-top: 10px; }
+        .bottom-row { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 20px; padding: 20px 40px; border: 1px solid rgba(255,255,255,0.2); }
+        .card h3 { margin: 0 0 10px 0; font-size: 20px; color: #87cefa; }
+        .card p { margin: 5px 0; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="top-row">
+        <div id="weather" class="card">جاري تحميل الطقس...</div>
+        <div id="prayer" class="card">جاري تحميل الصلاة...</div>
+    </div>
+    
+    <div class="clock-container">
+        <p class="time" id="clock">00:00</p>
+        <p class="date" id="date">اليوم، التاريخ</p>
+    </div>
+
+    <div class="bottom-row">
+        <div class="card" style="width: 60%;">
+            <h3>المباريات المهمة</h3>
+            <p>ريال مدريد × برشلونة - 10:00 م</p>
+        </div>
+    </div>
+
+    <script>
+        // الساعة
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: false});
+            document.getElementById('date').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        // الطقس (بغداد)
+        fetch('https://api.open-meteo.com/v1/forecast?latitude=33.3152&longitude=44.3661&current_weather=true')
+            .then(res => res.json())
+            .then(data => {
+                const temp = data.current_weather.temperature;
+                document.getElementById('weather').innerHTML = `<h3>الطقس - بغداد</h3><p>${temp}°C</p>`;
+            });
+
+        // مواقيت الصلاة (بغداد)
+        fetch('https://api.aladhan.com/v1/timingsByCity?city=Baghdad&country=Iraq&method=3')
+            .then(res => res.json())
+            .then(data => {
+                const t = data.data.timings;
+                document.getElementById('prayer').innerHTML = `<h3>مواقيت الصلاة</h3><p>المغرب: ${t.Maghrib} | العشاء: ${t.Isha}</p>`;
+            });
+    </script>
+</body>
+</html>
